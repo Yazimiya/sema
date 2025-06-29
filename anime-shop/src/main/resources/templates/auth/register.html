@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .register-container {
+            max-width: 500px;
+            margin: 80px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <h2 class="text-center mb-4">Регистрация</h2>
+
+    <form th:action="@{/register}" method="post" th:object="${user}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div class="mb-3">
+            <label class="form-label">Имя пользователя:</label>
+            <input type="text" th:field="*{username}" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email:</label>
+            <input type="email" th:field="*{email}" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Пароль:</label>
+            <input type="password" th:field="*{password}" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+    </form>
+
+    <div class="text-center mt-3">
+        <p>Уже есть аккаунт? <a th:href="@{/login}">Войти</a></p>
+    </div>
+</div>
+
+</body>
+</html>

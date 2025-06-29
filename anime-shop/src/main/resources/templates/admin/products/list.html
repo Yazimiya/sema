@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление товарами</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+
+<th:block th:replace="fragments/header :: header"/>
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Управление товарами</h2>
+
+    <form method="get" class="mb-3 d-flex align-items-center justify-content-end">
+        <label for="currency" class="me-2 mb-0">Валюта:</label>
+        <select name="currency" id="currency" class="form-select form-select-sm w-auto me-2">
+            <option value="RUB" th:selected="${currency == 'RUB'}">₽</option>
+            <option value="USD" th:selected="${currency == 'USD'}">$</option>
+            <option value="EUR" th:selected="${currency == 'EUR'}">€</option>
+            <option value="BYN" th:selected="${currency == 'BYN'}">BYN</option>
+            <option value="CNY" th:selected="${currency == 'CNY'}">¥</option>
+            <option value="UAH" th:selected="${currency == 'UAH'}">₴</option>
+        </select>
+        <button type="submit" class="btn btn-sm btn-outline-primary">Применить</button>
+    </form>
+
+    <div class="mb-3 text-end">
+        <a class="btn btn-success btn-sm" th:href="@{/admin/products/create}">+ Новый товар</a>
+    </div>
+
+    <ul class="list-group">
+        <li class="list-group-item" th:each="p : ${products}">
+            <div class="d-flex align-items-start">
+                <!-- Картинка -->
+                <img th:if="${p.imageFilename != null}"
+                     th:src="@{'/images/' + ${p.imageFilename}}"
+                     alt="Фото" width="80" height="80"
+                     class="rounded me-3 border"
+                     style="object-fit: cover;" />
+
+                <div class="flex-grow-1">
+                    <h5 class="mb-1" th:text="${p.name}">Название</h5>
+                    <p class="mb-1">
+                        💰 <span th:text="${#numbers.formatDecimal(p.price * (rate != null ? rate : 1), 1, 2)} + ' ' + ${symbol}">0 ₽</span>
+                    </p>
+
+                    <!-- Статистика отмен -->
+                    <div th:if="${cancelStats[p.id] != null}" class="mb-2">
+                        <span class="text-muted small">
+                            Заказов: <span th:text="${cancelStats[p.id].total}">0</span>,
+                            Отмен: <span th:text="${cancelStats[p.id].cancelled}">0</span>,
+                            Процент отмены: <span th:text="${#numbers.formatDecimal(cancelStats[p.id].percent, 1, 1)} + '%'">0%</span>
+                        </span>
+                    </div>
+
+                    <div>
+                        <a th:href="@{'/admin/products/edit/' + ${p.id}}" class="btn btn-sm btn-outline-primary me-2">✏️</a>
+                        <a th:href="@{'/admin/products/delete/' + ${p.id}}" class="btn btn-sm btn-outline-danger">🗑</a>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-outline-secondary" th:href="@{/}">← На главную</a>
+    </div>
+</div>
+
+<th:block th:replace="fragments/footer :: footer"/>
+
+</body>
+</html>

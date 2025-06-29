@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Тест ошибок</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+
+<div class="container d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 80vh;">
+    <div class="text-center p-4 border rounded shadow-sm bg-white" style="max-width: 400px; width: 100%;">
+        <h2 class="mb-4">Тест ошибок</h2>
+        <p class="mb-4 text-muted">Нажми кнопку, чтобы вызвать соответствующую ошибку:</p>
+
+        <div class="d-grid gap-2">
+            <a th:href="@{/test-403}" class="btn btn-warning">Ошибка 403 (Запрещено)</a>
+            <a th:href="@{/test-404}" class="btn btn-secondary">Ошибка 404 (Не найдено)</a>
+            <a th:href="@{/test-500}" class="btn btn-danger">Ошибка 500 (Сервер)</a>
+            <a th:href="@{/test-unknown}" class="btn btn-outline-dark">Неизвестная ошибка (418)</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

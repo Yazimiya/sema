@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог товаров</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <style>
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            padding: 10px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            max-width: 250px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: transform 0.2s ease-in-out;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            font-size: 0.85em;
+        }
+        .product-card:hover {
+            transform: scale(1.015);
+        }
+        .product-card img {
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+        .rating-stars .star {
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .rating-stars .star.active {
+            color: orange;
+        }
+    </style>
+</head>
+
+<body>
+<th:block th:replace="fragments/header :: header"/>
+
+<div class="container py-4">
+
+    <h1 class="mb-4 text-center">Каталог товаров</h1>
+
+    <!-- Фильтрация -->
+    <form method="get" th:action="@{/products}" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label for="category" class="form-label">Категория</label>
+            <select id="category" name="categoryId" class="form-select">
+                <option th:value="all" th:selected="${selectedCategoryId == null}">Все</option>
+                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                        th:selected="${selectedCategoryId == cat.id}"></option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Цена от</label>
+            <input id="minPrice" type="number" name="minPrice" step="0.01" th:value="${minPrice}" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">до</label>
+            <input id="maxPrice" type="number" name="maxPrice" step="0.01" th:value="${maxPrice}" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Валюта</label>
+            <select name="currency" id="currency" class="form-select">
+                <option value="RUB" th:selected="${currency == 'RUB'}">₽</option>
+                <option value="USD" th:selected="${currency == 'USD'}">$</option>
+                <option value="EUR" th:selected="${currency == 'EUR'}">€</option>
+                <option value="BYN" th:selected="${currency == 'BYN'}">BYN</option>
+                <option value="CNY" th:selected="${currency == 'CNY'}">¥</option>
+                <option value="UAH" th:selected="${currency == 'UAH'}">₴</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Сортировка</label>
+            <select id="sort" name="sort" class="form-select">
+                <option value="" th:selected="${sort == null}">Без сортировки</option>
+                <option value="rating_desc" th:selected="${sort == 'rating_desc'}">Рейтинг (лучшие)</option>
+                <option value="rating_asc" th:selected="${sort == 'rating_asc'}">Рейтинг (худшие)</option>
+            </select>
+        </div>
+        <div class="col-12 text-end">
+            <button class="btn btn-primary">Показать</button>
+            <a th:href="@{/products}" class="btn btn-outline-secondary ms-2">Сбросить</a>
+        </div>
+    </form>
+
+    <div class="mb-3">
+        <label for="search" class="form-label">Поиск</label>
+        <input type="text" id="search" class="form-control" placeholder="Введите название...">
+    </div>
+
+    <div th:if="${#lists.isEmpty(products)}">
+        <div class="alert alert-warning text-center">Нет товаров</div>
+    </div>
+
+    <!-- Товары -->
+    <div class="row" id="productList" th:if="${!#lists.isEmpty(products)}">
+        <div class="col-6 col-md-4 col-lg-3 mb-4" th:each="p : ${products}">
+            <div class="product-card h-100">
+                <img th:src="@{'/images/' + ${p.imageFilename}}" alt="товар" class="img-fluid"/>
+                <h5 th:text="${p.name}">Название</h5>
+                <p th:text="${p.description}">Описание</p>
+                <p><strong>Цена:</strong> <span th:text="${priceMap[p.id]} + ' ' + ${symbol}"></span></p>
+                <p th:if="${p.category != null}" class="mb-1">
+                    <span class="badge bg-secondary" th:text="${p.category.name}">Категория</span>
+                </p>
+                <form th:action="@{'/cart/add/' + ${p.id}}" method="post" class="mt-2">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-success w-100">Добавить в корзину</button>
+                </form>
+
+                <!-- ⭐️ Рейтинг -->
+                <div class="rating-container mt-3" th:data-product-id="${p.id}">
+                    <div th:if="${#authorization.expression('isAuthenticated()')}">
+                        <div class="rating-stars mb-1">
+                            <i class="star" data-value="1">&#9733;</i>
+                            <i class="star" data-value="2">&#9733;</i>
+                            <i class="star" data-value="3">&#9733;</i>
+                            <i class="star" data-value="4">&#9733;</i>
+                            <i class="star" data-value="5">&#9733;</i>
+                        </div>
+                    </div>
+                    <div th:if="${!#authorization.expression('isAuthenticated()')}">
+                        <div class="rating-stars mb-1">
+                            <i class="star guest" data-value="1">&#9733;</i>
+                            <i class="star guest" data-value="2">&#9733;</i>
+                            <i class="star guest" data-value="3">&#9733;</i>
+                            <i class="star guest" data-value="4">&#9733;</i>
+                            <i class="star guest" data-value="5">&#9733;</i>
+                        </div>
+                        <p><small><a href="/login">Войдите</a>, чтобы оценивать</small></p>
+                    </div>
+                    <p class="small text-muted">Средняя оценка: <span class="avg">—</span></p>
+                    <p class="small text-muted">Ваша оценка: <span class="you">—</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a th:href="@{/cart}" class="btn btn-outline-primary">Перейти в корзину</a>
+        <a th:href="@{/}" class="btn btn-outline-secondary ms-2">На главную</a>
+    </div>
+
+</div>
+
+<!-- JS -->
+<script th:src="@{/js/rating.js}"></script>
+<script th:inline="javascript">
+    const input = document.getElementById("search");
+
+    input.addEventListener("input", function () {
+        const query = input.value.trim();
+        if (query === "") {
+            location.reload();
+            return;
+        }
+
+        const category = document.getElementById("category").value;
+        const min = document.getElementById("minPrice")?.value || "";
+        const max = document.getElementById("maxPrice")?.value || "";
+        const currency = document.getElementById("currency").value;
+        const sort = document.getElementById("sort").value;
+
+        const url = `/api/products/search-fragment?query=${encodeURIComponent(query)}&categoryId=${category}&minPrice=${min}&maxPrice=${max}&currency=${currency}&sort=${sort}`;
+
+        fetch(url)
+            .then(res => res.text())
+            .then(html => {
+                const productList = document.getElementById("productList");
+                productList.outerHTML = html;
+
+                document.querySelectorAll(".rating-container").forEach(container => {
+                    const productId = container.dataset.productId;
+                    if (typeof renderRating === "function") {
+                        renderRating(productId, container);
+                    }
+                });
+            });
+    });
+</script>
+
+<th:block th:replace="fragments/footer :: footer"/>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOG_PATH" value="logs"/>
+
+    <!-- Общий лог -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_PATH}/app.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%logger] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Ошибки пользователей -->
+    <appender name="USER_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_PATH}/user-errors.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Ошибки заказов -->
+    <appender name="ORDER_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_PATH}/order-errors.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Логгер по умолчанию -->
+    <root level="INFO">
+        <appender-ref ref="APP_FILE"/>
+    </root>
+
+    <!-- Логгер для пользователей -->
+    <logger name="com.animeshop.service.UserServiceImpl" level="ERROR" additivity="false">
+        <appender-ref ref="USER_FILE"/>
+    </logger>
+
+    <!-- Логгер для заказов -->
+    <logger name="com.animeshop.service.OrderServiceImpl" level="ERROR" additivity="false">
+        <appender-ref ref="ORDER_FILE"/>
+    </logger>
+
+</configuration>

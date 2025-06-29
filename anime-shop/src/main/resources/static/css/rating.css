@@ -1,0 +1,11 @@
+.rating-stars .star {
+    font-size: 22px;
+    color: lightgray;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-stars .star.active,
+.rating-stars .star:hover {
+    color: gold;
+}

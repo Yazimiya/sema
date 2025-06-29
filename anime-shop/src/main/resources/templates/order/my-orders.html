@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои заказы</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <style>
+        .order-item {
+            padding-left: 20px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .order-item img {
+            width: 60px;
+            height: auto;
+            margin-right: 10px;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+<th:block th:replace="fragments/header :: header"/>
+
+<div class="container py-4">
+    <h2 class="mb-4 text-center">Мои заказы</h2>
+
+    <!-- Фильтрация -->
+    <form method="get" class="row g-3 align-items-end mb-4 border rounded p-3 shadow-sm">
+        <div class="col-md-2">
+            <label for="currency" class="form-label">Валюта:</label>
+            <select name="currency" id="currency" class="form-select">
+                <option value="RUB" th:selected="${currency == 'RUB'}">₽</option>
+                <option value="USD" th:selected="${currency == 'USD'}">$</option>
+                <option value="EUR" th:selected="${currency == 'EUR'}">€</option>
+                <option value="BYN" th:selected="${currency == 'BYN'}">BYN</option>
+                <option value="CNY" th:selected="${currency == 'CNY'}">¥</option>
+                <option value="UAH" th:selected="${currency == 'UAH'}">₴</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="status" class="form-label">Статус:</label>
+            <select name="status" id="status" class="form-select">
+                <option value="">Все</option>
+                <option value="active" th:selected="${filterStatus == 'active'}">Активен</option>
+                <option value="cancelled" th:selected="${filterStatus == 'cancelled'}">Отменён</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="from" class="form-label">С:</label>
+            <input type="date" id="from" name="from" class="form-control" th:value="${filterFrom}">
+        </div>
+
+        <div class="col-md-2">
+            <label for="to" class="form-label">По:</label>
+            <input type="date" id="to" name="to" class="form-control" th:value="${filterTo}">
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Применить</button>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="alert alert-info text-center">
+        Вы ещё не оформили ни одного заказа.
+    </div>
+
+    <div th:each="order : ${orders}" class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Заказ #<span th:text="${order.id}"></span></h5>
+            <p class="mb-1"><strong>Дата:</strong> <span th:text="${#temporals.format(order.dateTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+            <p class="mb-1"><strong>Статус:</strong>
+                <span th:text="${order.cancelled} ? 'Отменён' : 'Активен'"
+                      th:classappend="${order.cancelled} ? 'text-danger' : 'text-success'"></span>
+            </p>
+            <p><strong>Сумма:</strong>
+                <span th:text="${formattedTotals[order.id]} + ' ' + ${symbol}"></span>
+            </p>
+
+            <div class="mb-2" th:each="item : ${order.items}">
+                <div class="order-item">
+                    <img th:src="@{'/images/' + ${item.product.imageFilename}}" alt="товар"/>
+                    <div>
+                        <span th:text="${item.product.name}"></span>&nbsp;—&nbsp;
+                        <span th:text="${item.quantity}"></span> шт.
+                    </div>
+                </div>
+            </div>
+
+            <form th:action="@{'/orders/cancel/' + ${order.id}}" method="post" th:if="!${order.cancelled}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button class="btn btn-outline-danger btn-sm">Отменить заказ</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/}" class="btn btn-outline-secondary">← На главную</a>
+    </div>
+</div>
+
+<th:block th:replace="fragments/footer :: footer"/>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ошибка 403 - Доступ запрещён</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+
+<div class="container d-flex flex-column align-items-center justify-content-center py-5" style="min-height: 80vh;">
+    <div class="text-center border rounded p-5 shadow-sm bg-white" style="max-width: 500px;">
+        <h1 class="display-4 text-warning mb-3">Ошибка 403</h1>
+        <p class="lead">🚫 У вас нет прав для доступа к этой странице.</p>
+        <a th:href="@{/}" class="btn btn-outline-primary mt-3">На главную</a>
+    </div>
+</div>
+
+</body>
+</html>

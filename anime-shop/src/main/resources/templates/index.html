@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Anime Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+
+    <link rel="stylesheet" th:href="@{/css/rating.css}" />
+</head>
+
+<body>
+
+<th:block th:replace="fragments/header :: header" />
+
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">
+        🏯 Добро пожаловать в <span class="text-primary">Anime Shop</span>!
+    </h1>
+    <p class="lead text-muted text-center">Это главная страница магазина.</p>
+
+    <div class="text-center my-4">
+        <a class="btn btn-primary m-2" th:href="@{/products}">Каталог товаров</a>
+        <a class="btn btn-secondary m-2" th:href="@{/profile}">Профиль</a>
+        <a class="btn btn-success m-2" th:href="@{/cart}">Моя корзина</a>
+        <a class="btn btn-info m-2" th:href="@{/orders/my}">Мои заказы</a>
+    </div>
+
+    <form th:action="@{/logout}" method="post" class="d-inline text-center">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button type="submit" class="btn btn-outline-danger mt-3">Выйти</button>
+    </form>
+
+    <div sec:authorize="hasRole('ADMIN')" class="admin-panel mt-5 border-top pt-4 text-center">
+        <h5>Панель администратора</h5>
+        <a class="btn btn-outline-warning m-1" th:href="@{/admin/products}">Товары</a>
+        <a class="btn btn-outline-warning m-1" th:href="@{/admin/categories}">Категории</a>
+        <a class="btn btn-outline-warning m-1" th:href="@{/admin/orders}">Заказы</a>
+    </div>
+</div>
+
+<th:block th:replace="fragments/footer :: footer" />
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

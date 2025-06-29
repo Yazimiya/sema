@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказы — админка</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+
+<th:block th:replace="fragments/header :: header"/>
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">Все заказы</h2>
+
+    <!-- Фильтрация -->
+    <form method="get" class="row g-3 mb-4 border rounded p-3 shadow-sm">
+        <div class="col-md-3">
+            <label for="email" class="form-label">Email пользователя:</label>
+            <input type="text" name="email" id="email" class="form-control" th:value="${filterEmail}">
+        </div>
+        <div class="col-md-2">
+            <label for="status" class="form-label">Статус:</label>
+            <select name="status" id="status" class="form-select">
+                <option value="" th:selected="${filterStatus == null}">Все</option>
+                <option value="active" th:selected="${filterStatus == 'active'}">✅ Активные</option>
+                <option value="cancelled" th:selected="${filterStatus == 'cancelled'}">❌ Отменённые</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="from" class="form-label">С даты:</label>
+            <input type="date" name="from" id="from" class="form-control" th:value="${filterFrom}">
+        </div>
+        <div class="col-md-2">
+            <label for="to" class="form-label">По дату:</label>
+            <input type="date" name="to" id="to" class="form-control" th:value="${filterTo}">
+        </div>
+        <div class="col-md-2">
+            <label for="currency" class="form-label">Валюта:</label>
+            <select name="currency" id="currency" class="form-select">
+                <option value="RUB" th:selected="${currency == 'RUB'}">₽</option>
+                <option value="USD" th:selected="${currency == 'USD'}">$</option>
+                <option value="EUR" th:selected="${currency == 'EUR'}">€</option>
+                <option value="BYN" th:selected="${currency == 'BYN'}">BYN</option>
+                <option value="CNY" th:selected="${currency == 'CNY'}">¥</option>
+                <option value="UAH" th:selected="${currency == 'UAH'}">₴</option>
+            </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-outline-primary">Применить</button>
+        </div>
+    </form>
+
+    <div class="mb-4 p-3 bg-light border rounded">
+        <p class="mb-1">
+            📦 Всего заказов: <strong th:text="${total}">0</strong>
+        </p>
+        <p class="mb-1">
+            ❌ Отменено: <strong th:text="${cancelled}">0</strong>
+        </p>
+        <p class="mb-0">
+            📉 Процент отмен: <strong th:text="${cancelPercent} + '%'">0%</strong>
+        </p>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Дата</th>
+                <th>Статус</th>
+                <th>Сумма</th>
+                <th class="text-center">Управление</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td>
+                    <a th:href="@{'/admin/orders/' + ${order.id}}" th:text="${order.id}">ID</a>
+                </td>
+                <td th:text="${order.user.email}">user@example.com</td>
+                <td th:text="${#temporals.format(order.dateTime, 'dd.MM.yyyy HH:mm')}">дата</td>
+                <td th:text="${order.cancelled ? '❌ Отменён' : '✅ Активен'}"
+                    th:classappend="${order.cancelled} ? 'text-danger' : 'text-success'">Статус</td>
+                <td th:text="${#numbers.formatDecimal(order.totalPrice * rate, 1, 2)} + ' ' + ${symbol}">1000</td>
+                <td class="text-center">
+                    <form th:action="@{'/admin/orders/' + ${order.id} + '/cancel'}" method="post" th:if="${!order.cancelled}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-sm btn-danger">Отменить</button>
+                    </form>
+                    <form th:action="@{'/admin/orders/' + ${order.id} + '/restore'}" method="post" th:if="${order.cancelled}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-sm btn-success">Восстановить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-outline-secondary">← На главную</a>
+    </div>
+</div>
+
+<th:block th:replace="fragments/footer :: footer"/>
+
+</body>
+</html>

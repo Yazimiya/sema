@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Детали заказа</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+
+<th:block th:replace="fragments/header :: header"/>
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">
+        Заказ №<span th:text="${order.id}">1</span>
+    </h2>
+
+    <div class="mb-4 border rounded p-3 bg-light">
+        <p class="mb-1">
+            <strong>Пользователь:</strong> <span th:text="${order.user.email}">user@example.com</span>
+        </p>
+        <p class="mb-1">
+            <strong>Дата:</strong> <span th:text="${#temporals.format(order.dateTime, 'dd.MM.yyyy HH:mm')}">дата</span>
+        </p>
+        <p class="mb-1">
+            <strong>Статус:</strong>
+            <span th:text="${order.cancelled ? '❌ Отменён' : '✅ Активен'}"
+                  th:classappend="${order.cancelled} ? 'text-danger' : 'text-success'">статус</span>
+        </p>
+        <p class="mb-0">
+            <strong>Сумма:</strong> <span th:text="${#numbers.formatDecimal(order.totalPrice * rate, 1, 2)} + ' ' + ${symbol}">0</span>
+        </p>
+    </div>
+
+    <h5 class="mb-3">Товары в заказе:</h5>
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>Картинка</th>
+                <th>Название</th>
+                <th>Кол-во</th>
+                <th>Цена</th>
+                <th>Итого</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td>
+                    <img th:src="@{'/images/' + ${item.product.imageFilename}}" alt="img" width="80" class="rounded border" style="object-fit: contain;">
+                </td>
+                <td th:text="${item.product.name}">название</td>
+                <td th:text="${item.quantity}">1</td>
+                <td th:text="${#numbers.formatDecimal(item.product.price * rate, 1, 2)} + ' ' + ${symbol}">100</td>
+                <td th:text="${#numbers.formatDecimal(item.quantity * item.product.price * rate, 1, 2)} + ' ' + ${symbol}">100</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/admin/orders}" class="btn btn-outline-secondary">← Назад к заказам</a>
+    </div>
+</div>
+
+<th:block th:replace="fragments/footer :: footer"/>
+
+</body>
+</html>

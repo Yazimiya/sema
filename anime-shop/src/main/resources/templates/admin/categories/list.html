@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Категории</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+
+<th:block th:replace="fragments/header :: header"/>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Категории</h2>
+        <a th:href="@{/admin/categories/create}" class="btn btn-primary btn-sm">+ Добавить категорию</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle table-hover">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th class="text-center">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categories}">
+                <td th:text="${cat.id}"></td>
+                <td th:text="${cat.name}"></td>
+                <td class="text-center">
+                    <a th:href="@{/admin/categories/edit/{id}(id=${cat.id})}" class="btn btn-sm btn-outline-primary me-1">✏️</a>
+                    <a th:href="@{/admin/categories/delete/{id}(id=${cat.id})}" class="btn btn-sm btn-outline-danger">🗑</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/}" class="btn btn-outline-secondary">← На главную</a>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<th:block th:replace="fragments/footer :: footer"/>
+
+</body>
+</html>
